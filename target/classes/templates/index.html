@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<button onclick="findAllPhoneBook(1)">查询全部通讯录</button>
+<div id="list">
+</div>
+<div id="page">
+</div>
+<div id="update">
+</div>
+通讯录名字:<input type="text" id="phoneBookName" onblur="judge()"/><button id="create" onclick="createPhoneBook()">创建</button><br>
+模糊查询<input id="likePhoneBook" type="text"/><button id="queryPhoneBook" onclick="queryPhoneBookByLike()">查询</button>
+<div id="likePhoneBookName"></div>
+</body>
+<script src="jquery-3.4.1.js"></script>
+<script th:inline="javascript" charset="UTF-8">
+    function findAllPhoneBook(current) {
+        var currentPage;
+        var sum;
+        var total;
+        var next;
+        var previous;
+        var table="<table>  <tr>" +
+            "        <td>通讯录名字</td><td>查看</td><td>操作</td>" +
+            "    </tr>";
+        $.post({
+            url: "/phonebook/findAllPhoneBook",
+            data: {"current": current},
+            success: function (data) {
+                $.each(data,function (i,item) {
+                     console.log(item);
+                     if(i=="current"){
+                        currentPage=item;
+                     }
+                     if(i=="sum"){
+                         sum=item;
+                     }
+                     if(i=="total"){
+                         total=item;
+                    }
+                     if(i=="next"){
+                         next=item;
+                     }
+                     if(i=="previous"){
+                         previous=item;
+                     }
+                     if(i=="list"){
+                        $.each(item,function (k,v) {
+                            table+= "<tr><td>"+v.phoneBookName+"</td><td><a href='/phonebook/toContacts?phoneBookName="+v.phoneBookName+"'>进入</a></td><td><button id='deletePhoneBook' onclick=deletePhoneBook('"+v.phoneBookName+"')>删除</button><button id='updatePhoneBook' onclick=updatePhoneBook('"+v.phoneBookName+"')>修改</button></td></tr>";
+                        })
+                         table+="</table>";
+                         $("#list").html(table);
+                     }
+                })
+                    $("#page").html("<button id='previous_button' onclick='findAllPhoneBook("+(currentPage-1)+")'>上一页</button>"+
+                        "<span>"+currentPage+"/"+sum+"</span>"+
+                        "<button id='next_button' onclick='findAllPhoneBook("+(currentPage+1)+")'>下一页</button>"+
+                        "<span>共有"+total+"条数据</span>")
+                if(next){
+                    $("#next_button").attr('disabled',false);
+                }else{
+                    $("#next_button").attr('disabled',true);
+                }
+                if(previous){
+                    $("#previous_button").attr('disabled',false);
+                }else{
+                    $("#previous_button").attr('disabled',true);
+                }
+            }
+        })
+    }
+    function createPhoneBook() {
+        $.post({
+            url: "/phonebook/insertPhoneBook",
+            data: {"phoneBookName": $("#phoneBookName").val()},
+            success: function (data) {
+                if (data.toString() == '1') {
+                    alert("添加成功！");
+                }else{
+                    alert("添加失败！");
+                }
+
+            }
+        })
+
+    }
+    function judge() {
+        $.post({
+            url: "/phonebook/judgePhoneBook",
+            data: {"phoneBookName": $("#phoneBookName").val()},
+            success: function (data) {
+                if (data.toString() == 'false') {
+                    alert("通讯录名已存在！");
+                }
+            }
+        })
+    }
+
+    function deletePhoneBook(phoneBookName) {
+        $.post({
+            url: "/phonebook/deletePhoneBook",
+            data: {"phoneBookName": phoneBookName},
+            success: function (data) {
+                if(data.toString() == 'ok'){
+                    alert("删除成功!")
+                }
+            }
+        })
+    }
+    function updatePhoneBook(phoneBookName) {
+        var up="<input id='updateName' type='text' /><button id='up11' >确定修改</button>"
+        $("#update").html(up);
+        $("#updateName").bind({
+            blur:function () {
+                $.post({
+                    url: "/phonebook/judgePhoneBook",
+                    data: {"phoneBookName": $("#updateName").val()},
+                    success: function (data) {
+                        if (data.toString() == 'false') {
+                            alert("通讯录名已存在！");
+                        }
+                    }
+                })
+            }
+        });
+        $("#up11").bind({
+            click:function () {
+                $.post({
+                    url: "/phonebook/updatePhoneBookName",
+                    data: {"phoneBookName": phoneBookName,"newPhoneBookName": $("#updateName").val()},
+                    success: function (data) {
+                        if (data.toString() == 'false') {
+                            alert("修改成功!")
+                        }
+                    }
+                })
+            }
+        })
+
+    }
+
+    function queryPhoneBookByLike() {
+        var table="<table><tr><td>通讯录名字</td></tr>";
+        $.post({
+            url: "/phonebook/likeQueryPhoneBookName",
+            data: {"likeString": $("#likePhoneBook").val()},
+            success: function (data) {
+              $.each(data,function (i,item) {
+                    if(i=="phoneBookList"){
+                        if(item!=null){
+                            $.each(item,function (k,v) {
+                                table+="<tr><td>"+v.phoneBookName+"</td></tr>";
+                            })
+                        }
+                    }
+                  if(i=="contactsList"){
+                      if(item!=null){
+                          $.each(item,function (k,v) {
+                              table+="<tr><td>"+v.phoneBookName+"</td></tr>";
+                          })
+                          console.log(table);
+                      }
+                  }
+                  if(i=="contactsEmailList"){
+                      if(item!=null){
+                          $.each(item,function (k,v) {
+                              table+="<tr><td>"+v.phoneBookName+"</td></tr>";
+                          })
+                      }
+                  }
+                  if(i=="contactsPhoneNumberList"){
+                      if(item!=null){
+                          $.each(item,function (k,v) {
+                              table+="<tr><td>"+v.phoneBookName+"</td></tr>";
+                          })
+                      }
+                  }
+                  if(i=="contactsTelephoneNumberList"){
+                      if(item!=null){
+                          $.each(item,function (k,v) {
+                              table+="<tr><td>"+v.phoneBookName+"</td></tr>";
+                          })
+                      }
+                  }
+              })
+                table+="</table>";
+                $("#likePhoneBookName").html(table);
+            }
+        })
+    }
+</script>
+</html>

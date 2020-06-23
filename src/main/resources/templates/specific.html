@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<button  th:onclick="f([[${phoneBookName}]],[[${contacts}]],1);">查看联系人所有信息</button>
+<div id="list">
+</div>
+<div id="page">
+</div>
+<div id="list1">
+</div>
+<div id="page1">
+</div>
+<div id="list2">
+</div>
+<div id="page2">
+</div>
+邮箱:<input id="insertEmail" type="text"/><button id="createEmail" onclick="insertEmail()">创建</button><br>
+手机号:<input id="insertPhoneNumber" type="text"/><button id="createPhoneNumber" onclick="insertPhoneNumber()">创建</button><br>
+固话:<input id="insertTelephoneNumber" type="text"/><button id="createTelephoneNumber" onclick="insertTelephoneNumber()">创建</button>
+<div id="updateInformation"></div>
+</body>
+<script src="jquery-3.4.1.js"></script>
+<script th:inline="javascript" charset="UTF-8">
+    function f(phoneBookName, contacts, current) {
+        findEmail(phoneBookName, contacts, current);
+        findTelephoneNumber(phoneBookName, contacts, current);
+        findPhoneNumber(phoneBookName, contacts, current);
+
+    }
+
+        function findEmail(phoneBookName, contacts, current) {
+            var name = [[${phoneBookName}]];
+            var contactsName = [[${contacts}]];
+            var currentPage;
+            var sum;
+            var total;
+            var next;
+            var previous;
+            var table = "<table>  <tr>" +
+                "        <td>邮箱</td><td>操作</td>" +
+                "    </tr>";
+            $.post({
+                url: "/phonebook/findEmail",
+                data: {"current": current, "phoneBookName": phoneBookName, "contacts": contacts},
+                success: function (data) {
+                    $.each(data, function (i, item) {
+                        console.log(item);
+                        if (i == "current") {
+                            currentPage = item;
+                        }
+                        if (i == "sum") {
+                            sum = item;
+                        }
+                        if (i == "total") {
+                            total = item;
+                        }
+                        if (i == "next") {
+                            next = item;
+                        }
+                        if (i == "previous") {
+                            previous = item;
+                        }
+                        if (i == "list") {
+                            $.each(item, function (k, v) {
+                                table += "<tr><td>" + v.email + "</td><td><button onclick=deleteEmail('"+v.email+"')>删除</button><button onclick=updateEmail('"+v.email+"')>修改</button></td></tr>";
+                            })
+                            table += "</table>";
+                            $("#list").html(table);
+                        }
+                    })
+                    $("#page").html("<button id='previous_button1' onclick=findEmail('" + name + "','" + contactsName + "'," + (currentPage - 1) + ");>上一页</button>" +
+                        "<span>" + currentPage + "/" + sum + "</span>" +
+                        "<button id='next_button1' onclick=findEmail('" + name + "','" + contactsName + "'," + (currentPage + 1) + ");>下一页</button>" +
+                        "<span>共有" + total + "条数据</span>")
+                    if (next) {
+                        $("#next_button1").attr('disabled', false);
+                    } else {
+                        $("#next_button1").attr('disabled', true);
+                    }
+                    if (previous) {
+                        $("#previous_button1").attr('disabled', false);
+                    } else {
+                        $("#previous_button1").attr('disabled', true);
+                    }
+                }
+            })
+        }
+
+        function findTelephoneNumber(phoneBookName, contacts, current) {
+            var name = [[${phoneBookName}]];
+            var contactsName = [[${contacts}]];
+            var currentPage;
+            var sum;
+            var total;
+            var next;
+            var previous;
+            var table = "<table>  <tr>" +
+                "        <td>固话</td><td>操作</td>" +
+                "    </tr>";
+            $.post({
+                url: "/phonebook/findTelephoneNumber",
+                data: {"current": current, "phoneBookName": phoneBookName, "contacts": contacts},
+                success: function (data) {
+                    $.each(data, function (i, item) {
+                        console.log(item);
+                        if (i == "current") {
+                            currentPage = item;
+                        }
+                        if (i == "sum") {
+                            sum = item;
+                        }
+                        if (i == "total") {
+                            total = item;
+                        }
+                        if (i == "next") {
+                            next = item;
+                        }
+                        if (i == "previous") {
+                            previous = item;
+                        }
+                        if (i == "list") {
+                            $.each(item, function (k, v) {
+                                table += "<tr><td>" + v.telephoneNumber + "</td><td><button onclick=deleteTelephoneNumber('"+v.telephoneNumber+"')>删除</button><button onclick=updateTelephoneNumber('"+v.telephoneNumber+"')>修改</button></td></tr>";
+                            })
+                            table += "</table>";
+                            $("#list1").html(table);
+                        }
+                    })
+                    $("#page1").html("<button id='previous_button2' onclick=findTelephoneNumber('" + name + "','" + contactsName + "'," + (currentPage - 1) + ");>上一页</button>" +
+                        "<span>" + currentPage + "/" + sum + "</span>" +
+                        "<button id='next_button2' onclick=findTelephoneNumber('" + name + "','" + contactsName + "'," + (currentPage + 1) + ");>下一页</button>" +
+                        "<span>共有" + total + "条数据</span>")
+                    if (next) {
+                        $("#next_button2").attr('disabled', false);
+                    } else {
+                        $("#next_button2").attr('disabled', true);
+                    }
+                    if (previous) {
+                        $("#previous_button2").attr('disabled', false);
+                    } else {
+                        $("#previous_button2").attr('disabled', true);
+                    }
+                }
+            })
+        }
+
+        function findPhoneNumber(phoneBookName, contacts, current) {
+            var name = [[${phoneBookName}]];
+            var contactsName = [[${contacts}]];
+            var currentPage;
+            var sum;
+            var total;
+            var next;
+            var previous;
+            var table = "<table>  <tr>" +
+                "        <td>手机</td><td>操作</td>" +
+                "    </tr>";
+            $.post({
+                url: "/phonebook/findPhoneNumber",
+                data: {"current": current, "phoneBookName": phoneBookName, "contacts": contacts},
+                success: function (data) {
+                    $.each(data, function (i, item) {
+                        console.log(item);
+                        if (i == "current") {
+                            currentPage = item;
+                        }
+                        if (i == "sum") {
+                            sum = item;
+                        }
+                        if (i == "total") {
+                            total = item;
+                        }
+                        if (i == "next") {
+                            next = item;
+                        }
+                        if (i == "previous") {
+                            previous = item;
+                        }
+                        if (i == "list") {
+                            $.each(item, function (k, v) {
+                                table += "<tr><td>" + v.phoneNumber + "</td><td><button onclick=deletePhoneNumber('"+v.phoneNumber+"')>删除</button><button onclick=updatePhoneNumber('"+v.phoneNumber+"')>修改</button></td></tr>";
+                            })
+                            table += "</table>";
+                            $("#list2").html(table);
+                        }
+                    })
+                    $("#page2").html("<button id='previous_button3' onclick=findPhoneNumber('" + name + "','" + contactsName + "'," + (currentPage - 1) + ");>上一页</button>" +
+                        "<span>" + currentPage + "/" + sum + "</span>" +
+                        "<button id='next_button3' onclick=findPhoneNumber('" + name + "','" + contactsName + "'," + (currentPage + 1) + ");>下一页</button>" +
+                        "<span>共有" + total + "条数据</span>")
+                    if (next) {
+                        $("#next_button3").attr('disabled', false);
+                    } else {
+                        $("#next_button3").attr('disabled', true);
+                    }
+                    if (previous) {
+                        $("#previous_button3").attr('disabled', false);
+                    } else {
+                        $("#previous_button3").attr('disabled', true);
+                    }
+                }
+            })
+        }
+    function deleteEmail(email) {
+        $.post({
+            url: "/phonebook/deleteEmail",
+            data: {"phoneBookName": [[${phoneBookName}]],"contacts": [[${contacts}]],"email": email},
+            success: function (data) {
+                if(data.toString()=='ok'){
+                    alert("删除成功！");
+                }
+            }
+        })
+    }
+    function deleteTelephoneNumber(telephoneNumber) {
+        $.post({
+            url: "/phonebook/deleteTelephoneNumber",
+            data: {"phoneBookName": [[${phoneBookName}]],"contacts": [[${contacts}]],"telephoneNumber": telephoneNumber},
+            success: function (data) {
+                if(data.toString()=='ok'){
+                    alert("删除成功！");
+                }
+            }
+        })
+    }
+    function deletePhoneNumber(phoneNumber) {
+        $.post({
+            url: "/phonebook/deletePhoneNumber",
+            data: {"phoneBookName": [[${phoneBookName}]],"contacts": [[${contacts}]],"phoneNumber": phoneNumber},
+            success: function (data) {
+                if(data.toString()=='ok'){
+                    alert("删除成功！");
+                }
+            }
+        })
+    }
+    function updateEmail(email) {
+        var str="新的邮箱<input type='text' id='newEmail'/><button id='but_newEmail'>修改</button>";
+        $("#updateInformation").html(str);
+        $("#newEmail").bind({
+            blur:function () {
+                $.post({
+                    url: "/phonebook/judgeEmail",
+                    data: {"phoneBookName": [[${phoneBookName}]],"contacts": [[${contacts}]],"email": $("#newEmail").val()},
+                    success: function (data) {
+                        if(data.toString()=='ok'){
+                            alert("邮箱已存在！");
+                        }
+                    }
+                })
+            }
+        })
+        $("#but_newEmail").bind({
+            click:function () {
+                $.post({
+                    url: "/phonebook/updateEmail",
+                    data: {"phoneBookName": [[${phoneBookName}]],"contacts": [[${contacts}]],"email": email,"newEmail": $("#newEmail").val()},
+                    success: function (data) {
+                        if(data.toString()=='ok'){
+                            alert("修改邮箱成功");
+                        }
+                    }
+                })
+            }
+        })
+    }
+    function updatePhoneNumber(phoneNumber) {
+        var str="新的手机号<input type='text' id='newPhoneNumber'/><button id='but_newPhoneNumber'>修改</button>";
+        $("#updateInformation").html(str);
+        $("#newPhoneNumber").bind({
+            blur:function () {
+                $.post({
+                    url: "/phonebook/judgePhoneNumber",
+                    data: {"phoneBookName": [[${phoneBookName}]],"contacts": [[${contacts}]],"phoneNumber": $("#newPhoneNumber").val()},
+                    success: function (data) {
+                        if(data.toString()=='ok'){
+                            alert("手机号已存在！");
+                        }
+                    }
+                })
+            }
+        })
+        $("#but_newPhoneNumber").bind({
+            click:function () {
+                $.post({
+                    url: "/phonebook/updatePhoneNumber",
+                    data: {"phoneBookName": [[${phoneBookName}]],"contacts": [[${contacts}]],"phoneNumber": phoneNumber,"newPhoneNumber": $("#newPhoneNumber").val()},
+                    success: function (data) {
+                        if(data.toString()=='ok'){
+                            alert("修改手机号成功");
+                        }
+                    }
+                })
+            }
+        })
+    }
+    function updateTelephoneNumber(telephoneNumber) {
+        var str="新的固话<input type='text' id='newTelephoneNumber'/><button id='but_newTelephoneNumber'>修改</button>";
+        $("#updateInformation").html(str);
+        $("#newTelephoneNumber").bind({
+            blur:function () {
+                $.post({
+                    url: "/phonebook/judgeTelephoneNumber",
+                    data: {"phoneBookName": [[${phoneBookName}]],"contacts": [[${contacts}]],"telephoneNumber": $("#newTelephoneNumber").val()},
+                    success: function (data) {
+                        if(data.toString()=='ok'){
+                            alert("固话已存在！");
+                        }
+                    }
+                })
+            }
+        })
+        $("#but_newTelephoneNumber").bind({
+            click:function () {
+                $.post({
+                    url: "/phonebook/updateTelephoneNumber",
+                    data: {"phoneBookName": [[${phoneBookName}]],"contacts": [[${contacts}]],"telephoneNumber": telephoneNumber,"newTelephoneNumber": $("#newTelephoneNumber").val()},
+                    success: function (data) {
+                        if(data.toString()=='ok'){
+                            alert("修改固话成功");
+                        }
+                    }
+                })
+            }
+        })
+    }
+    function insertEmail() {
+        $.post({
+            url: "/phonebook/insertEmail",
+            data: {"phoneBookName": [[${phoneBookName}]],"contacts": [[${contacts}]],"email": $("#insertEmail").val()},
+            success:function (data) {
+                if(data.toString()=='ok'){
+                    alert("添加邮箱成功");
+                }
+            }
+        })
+    }
+    function insertPhoneNumber() {
+        $.post({
+            url: "/phonebook/insertPhoneNumber",
+            data: {"phoneBookName": [[${phoneBookName}]],"contacts": [[${contacts}]],"phoneNumber": $("#insertPhoneNumber").val()},
+            success:function (data) {
+                if(data.toString()=='ok'){
+                    alert("添加手机号成功");
+                }
+            }
+        })
+    }
+    function insertTelephoneNumber() {
+        $.post({
+            url: "/phonebook/insertTelephoneNumber",
+            data: {"phoneBookName": [[${phoneBookName}]],"contacts": [[${contacts}]],"telephoneNumber": $("#insertTelephoneNumber").val()},
+            success:function (data) {
+                if(data.toString()=='ok'){
+                    alert("添加固话成功");
+                }
+            }
+        })
+    }
+</script>
+
+</html>
